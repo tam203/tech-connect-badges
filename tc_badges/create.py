@@ -15,10 +15,12 @@ def create_badge(image_data, name, rank, description):
     s3.Bucket(BUCKET_NAME).put_object(
         Key=make_key(name),
         Body=image_data,
+        ContentType='image/png'
         Metadata={
             RANK_META: rank,
             AWARD_FOR_META: description,
-            NAME_META: name
+            NAME_META: name,
+
         }
     )
 

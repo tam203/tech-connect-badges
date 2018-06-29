@@ -41,6 +41,7 @@ def award_badge(user, badge_slug, reason, date):
     s3.Bucket(BUCKET_NAME).put_object(
         Key=key,
         Body=badge['Body'].read(),
+        ContentType='image/png',
         Metadata=meta,
         ACL='public-read'
     )

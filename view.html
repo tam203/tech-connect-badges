@@ -1,0 +1,53 @@
+<html>
+
+<body>
+    <script>
+        let user = ""
+        let baseurl = `https://s3.eu-west-2.amazonaws.com/tech-connect-badges/`
+
+        function getUserId() {
+            const match = window.location.search.match('user=([^&]*)')
+            return (match) ? match[1] : 'no-user-id-found'
+        }
+
+        function resToBadge(res) {
+            let badge = {
+                img: res.url,
+                name: res.headers.get('x-amz-meta-name'),
+                date: res.headers.get('x-amz-meta-date'),
+                rank: res.headers.get('x-amz-meta-rank'),
+                reasonAwarded: res.headers.get('x-amz-meta-reason-awarded')
+            }
+            return badge
+        }
+
+        function addBadgeToPage(badge) {
+            var template = document.createElement('template');
+            template.innerHTML =
+                `<div class='badge' >
+                    <img src="${badge.img}" title="${badge.name}" alt="${badge.name}" />
+                    <p>${badge.reasonAwarded}</p>
+                </div>`
+                .trim()
+            document.body.appendChild(template.content.firstChild);
+        }
+
+        fetch(`${baseurl}?list-type=2&prefix=awarded/${getUserId()}`)
+            .then(res => res.text())
+            .then(body => {
+                console.log(body)
+                return (new DOMParser()).parseFromString(body, "application/xml")
+            }).then(dom => {
+                let badges = dom.getElementsByTagName('Contents');
+                for (let i = 0; i < badges.length; i++) {
+                    const badge = badges[i];
+                    const key = badge.getElementsByTagName('Key')[0].innerHTML;
+                    fetch(`${baseurl}${key}`, {
+                        mode: 'cors'
+                    }).then(resToBadge).then(addBadgeToPage)
+                }
+            })
+    </script>
+</body>
+
+</html>
