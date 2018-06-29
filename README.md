@@ -41,3 +41,10 @@ CORS is set up as below:
 </CORSRule>
 </CORSConfiguration>
 ```
+
+# Using 
+
+Ensure that you AWS credentials are set up, it's suggested you install the `aws-cli` and run `aws configure`. You must have permissions to write to the bucket being used. Run `scripts/badge.sh` to award, create, etc. 
+
+## Requirements
+* boto3
