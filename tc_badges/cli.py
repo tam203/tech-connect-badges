@@ -1,10 +1,12 @@
 import sys
 from tc_badges.create import main as create
 from tc_badges.award import main as award
+from tc_badges.list import main as lst
 
 methods = {
     'create': create,
-    'award': award
+    'award': award,
+    'list': lst
 }
 
 

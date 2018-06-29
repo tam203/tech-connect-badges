@@ -18,6 +18,10 @@ The python module for creating, awarding (and in future more) badges. Interface 
 
 An example html  page showing how to access a users badges and metadata given their id. open `view.html?user=<userid>` to test.
 
+# Running the image badging up service
+
+`FLASK_APP=tc_badges.badge_image flask run`
+
 # Bucket set up.
 The bucket permissions (ACL) are set to *Everyone: List objects*. Badges are uploaded with public read permissions (when using the python module). 
 
@@ -48,3 +52,5 @@ Ensure that you AWS credentials are set up, it's suggested you install the `aws-
 
 ## Requirements
 * boto3
+* Pillow
+* Flask
