@@ -17,7 +17,7 @@ def slug(name):
 
 def get_users_badge_keys(id):
     prefix = "{}/{}/".format(AWARDED_PREFIX, id)
-    return [b['Key'] for b in boto3.client('s3').list_objects_v2(Bucket=BUCKET_NAME, Prefix=prefix)['Contents']]
+    return [b['Key'] for b in boto3.client('s3').list_objects_v2(Bucket=BUCKET_NAME, Prefix=prefix).get('Contents', [])]
 
 
 def key_to_url(key):

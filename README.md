@@ -14,13 +14,28 @@ User ids are a hash of the users lowercased email address. Always use the same e
 
 The python module for creating, awarding (and in future more) badges. Interface as a python module or using the script `badge.sh`
 
+Use python 3.6 and a virtual env.
+
+Set up:
+```
+python -m venv tc-badges-env
+source tc-badges-env/bin/activate
+pip install -r requirements.txt
+```
+
+If you have problems installing pillow try `brew install libjpeg zlib` (if on mac) and try `pip install -r requirements.txt` again (from https://stackoverflow.com/a/34631976/1498817).
+
+[*] Depending on your set up you might need to use `pip3`.
+
+Once set up next time just use  `source tc-badges-env/bin/activate`
+
+Note zappa doesn't work with conda. I brew installed python and ensured I was using that version to create the venv
+
 # `view.html`
 
 An example html  page showing how to access a users badges and metadata given their id. open `view.html?user=<userid>` to test.
 
-# Running the image badging up service
 
-`FLASK_APP=tc_badges.badge_image flask run`
 
 # Bucket set up.
 The bucket permissions (ACL) are set to *Everyone: List objects*. Badges are uploaded with public read permissions (when using the python module). 
@@ -50,7 +65,34 @@ CORS is set up as below:
 
 Ensure that you AWS credentials are set up, it's suggested you install the `aws-cli` and run `aws configure`. You must have permissions to write to the bucket being used. Run `scripts/badge.sh` to award, create, etc. 
 
+# Yammer app
+
+## Deploy
+
+`zappa deploy dev` or `zappa update dev`
+
+This will deploy the app and give you a url, this will be your redirect url.  After the deploy and after registering your app you'll need to update the lambda with `CLIENT_ID` and `CLIENT_SECRET` variables. These can be got in the next step.
+
+
+# Yammer app
+
+You will also need to register the app at https://www.yammer.com/client_applications see https://developer.yammer.com/docs for more info. 
+You will need the deployed url that `zappa` returns as your "callback" or "welcome" url. 
+Registering will give you a `client_id` and `client_secret`.
+
+This link is where you can manage your apps once registered https://www.yammer.com/client_applications 
+
+This is a template for the link users will need to click to use the app `https://www.yammer.com/oauth2/authorize?client_id=<client_id>&response_type=code&redirect_uri=<deployment_uri>`
+
+
+# Running the image badging up service
+
+`CLIENT_ID=<client_id> CLIENT_SECRET=<client_secret> FLASK_APP=tc_badges.badge_image flask run`
+
+
+
 ## Requirements
 * boto3
 * Pillow
 * Flask
+* zappa

@@ -1,0 +1,4 @@
+Flask==1.0.2
+Pillow==5.1.0
+boto3==1.7.10 
+zappa
