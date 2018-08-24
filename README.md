@@ -2,15 +2,15 @@
 
 A simple system for creating, granting and showing badges for Tech Connect members.
 
-Badges are images in an S3 bucket with meta-data attached. The bucket is public read so available and awarded badges are public.
+Badges that can be awarded are images in an S3 bucket with meta-data attached. Awards, are JSON docs detailing the award. The bucket is public read so available and awarded badges are public.
 
 Awarded badges are stored with a key containing a users user id such as `/awarded/a4ad41/did_a_thing.png` where `did_a_thing.png` is the badge and `a4ad1` is the user id.
 
-User ids are a hash of the users lowercased email address. Always use the same email for a user. If email address changes the users awarded badges will need to be renamed.
+User ids are a hash of the users lower cased email address. Always use the same email for a user. If email address changes the users awarded badges will need to be renamed.
 
-# Things in this repo.
+## Things in this repo.
 
-# `tc_badges`
+### `tc_badges`
 
 The python module for creating, awarding (and in future more) badges. Interface as a python module or using the script `badge.sh`
 
@@ -27,17 +27,16 @@ If you have problems installing pillow try `brew install libjpeg zlib` (if on ma
 
 [*] Depending on your set up you might need to use `pip3`.
 
-Once set up next time just use  `source tc-badges-env/bin/activate`
+Once set up next time just use  `source ./tc-badges-env/bin/activate`
 
 Note zappa doesn't work with conda. I brew installed python and ensured I was using that version to create the venv
 
-# `view.html`
+### `view.html`
 
-An example html  page showing how to access a users badges and metadata given their id. open `view.html?user=<userid>` to test.
+An example html page showing how to access a users badges and metadata given their id. open `view.html?user=<userid>` to test.
 
 
-
-# Bucket set up.
+## Bucket set up.
 The bucket permissions (ACL) are set to *Everyone: List objects*. Badges are uploaded with public read permissions (when using the python module). 
 
 CORS is set up as below:
@@ -61,20 +60,20 @@ CORS is set up as below:
 </CORSConfiguration>
 ```
 
-# Using 
-
+## Using 
+Ensure the environment variable `TC_BADGES_BUCKET` is set. Production is `tech-connect-badges`, dev `tech-connect-badges-dev`
 Ensure that you AWS credentials are set up, it's suggested you install the `aws-cli` and run `aws configure`. You must have permissions to write to the bucket being used. Run `scripts/badge.sh` to award, create, etc. 
 
-# Yammer app
+## Yammer app
 
-## Deploy
+### Deploy
 
 `zappa deploy dev` or `zappa update dev`
 
 This will deploy the app and give you a url, this will be your redirect url.  After the deploy and after registering your app you'll need to update the lambda with `CLIENT_ID` and `CLIENT_SECRET` variables. These can be got in the next step.
 
 
-# Yammer app
+### Yammer app
 
 You will also need to register the app at https://www.yammer.com/client_applications see https://developer.yammer.com/docs for more info. 
 You will need the deployed url that `zappa` returns as your "callback" or "welcome" url. 
@@ -84,15 +83,23 @@ This link is where you can manage your apps once registered https://www.yammer.c
 
 This is a template for the link users will need to click to use the app `https://www.yammer.com/oauth2/authorize?client_id=<client_id>&response_type=code&redirect_uri=<deployment_uri>`
 
+fore example 
 
-# Running the image badging up service
+`https://www.yammer.com/oauth2/authorize?client_id=vsqHmLkUHYwEjW4sgJHwLQ&response_type=code&redirect_uri=https://484f162c.ngrok.io?action=get-most-like-yammer&new_than=1109052882`
 
-`CLIENT_ID=<client_id> CLIENT_SECRET=<client_secret> FLASK_APP=tc_badges.badge_image flask run`
+
+### Running the image badging up service
+
+`CLIENT_ID=<client_id> CLIENT_SECRET=<client_secret> FLASK_APP=tc_badges.server.apps flask run`
 
 
 
 ## Requirements
+See `requirements.txt`, but:
 * boto3
 * Pillow
 * Flask
 * zappa
+
+## Running test
+TC_BADGES_BUCKET=None python -m unittest discover tests

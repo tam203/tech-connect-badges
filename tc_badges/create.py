@@ -1,18 +1,12 @@
 import argparse
-import boto3
 from PIL import Image
-from tc_badges.utils import slug, key_to_url
-from tc_badges.constants import RANK_META, AWARD_FOR_META, NAME_META, BUCKET_NAME, AVAILABLE_BADGE_PREFIX
+from tc_badges.constants import RANK_META, AWARD_FOR_META, NAME_META, BUCKET_NAME, AVAILABLE_BADGE_PREFIX, RANKS
 import io
-
-s3 = boto3.resource('s3')
-
-
-def make_key(name):
-    return "{prefix}/{slug}.png".format(prefix=AVAILABLE_BADGE_PREFIX, slug=slug(name))
+from tc_badges.badges import PotentialBadge
+from tc_badges import db
 
 
-def create_badge(image_file, name, rank, description):
+def create_badge(image_file, name, rank, description, points=None):
 
     # Check image type and size and format if needed
     im = Image.open(image_file)
@@ -25,23 +19,22 @@ def create_badge(image_file, name, rank, description):
     else:
         im_data = open(image_file, 'rb')
 
-    key = make_key(name)
-    s3.Bucket(BUCKET_NAME).put_object(
-        Key=key,
-        Body=im_data.read(),
-        ContentType='image/png',
-        ACL='public-read',
-        Metadata={
-            RANK_META: rank,
-            AWARD_FOR_META: description,
-            NAME_META: name
-        }
-    )
-    print("Created badge {name} see {url}".format(
-        name=name, url=key_to_url(key)))
+    badge = PotentialBadge(name, im_data.read(), rank, description, points)
+    badge = db.create_badge(badge)
 
 
-def main(args=None):
+def check_points(rank_name, points):
+    rank = RANKS[rank_name]
+    if not (rank.min_points <= points <= rank.max_points):
+        raise ValueError("The point value {points} is not valid for rank {rank}({min}-{max})".format(
+            points=points,
+            min=rank.min_points,
+            max=rank.max_points,
+            rank=rank.name
+        ))
+
+
+def parse_args(args=None):
     parser = argparse.ArgumentParser(description='Create a new badge')
 
     parser.add_argument('image',
@@ -50,13 +43,24 @@ def main(args=None):
     parser.add_argument('name',
                         help='The badge name')
 
-    parser.add_argument('rank', choices=['bronze', 'silver', 'gold'],
+    parser.add_argument('rank', choices=RANKS.keys(),
                         help='The badge rank/value')
 
     parser.add_argument('description',
                         help='Why people are awarded the badge')
 
+    parser.add_argument('--points',  type=int,
+                        help='The number of TC points for the badge')
+
     args = parser.parse_args(args)
+
+    check_points(args.rank, args.points)
+
+    return args
+
+
+def main(args=None):
+    args = parse_args(args)
     create_badge(args.image, args.name, args.rank, args.description)
 
 

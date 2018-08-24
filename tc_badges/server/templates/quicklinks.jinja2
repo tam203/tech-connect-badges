@@ -1,0 +1,25 @@
+<html>
+
+<head></head>
+
+<body>
+    {% set yammer_callback="https://www.yammer.com/oauth2/authorize" %}
+
+
+
+
+    <h2> Yammer analytics</h2>
+    <form method="GET" action="/yammer-redirect">
+        <input type="hidden" value="yammer-analytics" name="action" />
+        <label>From:
+            <input type="date" name="from_date" />
+        </label>
+        <label>To:
+            <input type="date" name="to_date" />
+        </label>
+        <input type="submit" value="get most liked" />
+    </form>
+
+</body>
+
+</html>
